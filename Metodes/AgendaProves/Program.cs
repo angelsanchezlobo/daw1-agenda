@@ -18,6 +18,10 @@ switch (aux)
         //si no da igual y vuelve al menu
         else Console.WriteLine(TrobarUsuari(usuari));
         break;
+    case 3:
+        Console.WriteLine("Indica el usuari que vols modificar: ");
+    //Encuentra la linea en el metodo de modificar usuarios
+
     default:
         Console.WriteLine("hola");
         break;
@@ -185,8 +189,151 @@ static string TrobarUsuari(string usuari)
     agendaR.Close();
     return aux;
 }
-static void BorrarConsola() 
+static void BorrarConsola()
 {
     Console.Clear();
     return;
+}
+static string ModificarUsuaris(string usuari)
+{
+    string linea = TrobarUsuari(usuari);
+    string aux = linea, lineaNova = "";
+    int i = 0, posicioDada = 0;
+    string nom = "", cognom1 = "", cognom2 = "", dni = "", telefon = "", data = "", correu = "";
+    Console.WriteLine(linea);
+    while (aux.IndexOf(';') != -1)
+    {
+        i++;
+        aux = aux.Substring(0, aux.IndexOf(';') + 1);
+    }
+    if (i == 7)
+    {
+        string menu;
+        menu = "╔═══════════════════════════════════════════════════════╗\n" +
+               "║                    DADES A MODIFICAR                  ║\n" +
+               "╠═══════════════════════════════════════════════════════╣\n" +
+               "║                                                       ║\n" +
+               "║                1 - Nom                                ║\n" +
+               "║                2 - Cognom 1                           ║\n" +
+               "║                3 - Cognom 2                           ║\n" +
+               "║                4 - DNI                                ║\n" +
+               "║                5 - Telefon                            ║\n" +
+               "║                6 - Data Naixement                     ║\n" +
+               "║                7 - Correu Electronic                  ║\n" +
+               "║                                                       ║\n" +
+               "╚═══════════════════════════════════════════════════════╝";
+
+        Console.WriteLine(menu);
+        Console.Write("Indica quina dada vols modificar: ");
+        posicioDada = Convert.ToInt32(Console.ReadLine());
+    }
+    else
+    {
+        string menu;
+        menu = "╔═══════════════════════════════════════════════════════╗\n" +
+               "║                    DADES A MODIFICAR                  ║\n" +
+               "╠═══════════════════════════════════════════════════════╣\n" +
+               "║                                                       ║\n" +
+               "║                1 - Nom                                ║\n" +
+               "║                2 - Cognom 1                           ║\n" +
+               "║                3 - DNI                                ║\n" +
+               "║                4 - Telefon                            ║\n" +
+               "║                5 - Data Naixement                     ║\n" +
+               "║                6 - Correu Electronic                  ║\n" +
+               "║                                                       ║\n" +
+               "╚═══════════════════════════════════════════════════════╝";
+
+        Console.WriteLine(menu);
+        Console.Write("Indica quina dada vols modificar: ");
+        posicioDada = Convert.ToInt32(Console.ReadLine());
+    }
+    posicioDada = ArreglarPosicio(ref posicioDada, i);
+    nom = AgafarDada(ref linea);
+    cognom1 = AgafarDada(ref linea);
+    if (i == 7)
+    {
+        cognom2 = AgafarDada(ref linea);
+    }
+    dni = AgafarDada(ref linea);
+    telefon = AgafarDada(ref linea);
+    data = AgafarDada(ref linea);
+    correu = AgafarDada(ref linea);
+    switch (posicioDada)
+    {
+        case 1:
+            Console.WriteLine("Escriu un nou nom: ");
+            nom = Convert.ToString(Console.ReadLine());
+            nom = CorregirNoms(nom);
+            break;
+        case 2:
+            Console.WriteLine("Escriu un nou primer cognom: ");
+            cognom1 = Convert.ToString(Console.ReadLine());
+            cognom1 = CorregirNoms(cognom1);
+            break;
+        case 3:
+            if (i == 7)
+            {
+                Console.WriteLine("Escriu un nou segon cognom: ");
+                cognom2 = Convert.ToString(Console.ReadLine());
+                cognom2 = CorregirNoms(cognom2);
+            }
+            else
+            {
+                Console.WriteLine("No hi ha segon cognom a modificar.");
+            }
+            break;
+        case 4:
+            Console.WriteLine("Escriu un nou DNI: ");
+            dni = Convert.ToString(Console.ReadLine());
+            while (!ValidacioDNI(dni))
+            {
+                Console.Write("DNI erroni, introdueix un DNI valid: ");
+                dni = Convert.ToString(Console.ReadLine());
+            }
+            break;
+        case 5:
+            Console.WriteLine("Escriu un nou telefon: ");
+            telefon = Convert.ToString(Console.ReadLine());
+            while (!VerificarNumeros(telefon))
+            {
+                Console.Write("Telefon erroni, introdueix un telefon valid: ");
+                telefon = Convert.ToString(Console.ReadLine());
+            }
+            break;
+        case 6:
+            Console.WriteLine("Escriu una nova data de naixement: ");
+            data = Convert.ToString(Console.ReadLine());
+            break;
+        case 7:
+            Console.WriteLine("Escriu un nou correu electronic: ");
+            correu = Convert.ToString(Console.ReadLine());
+            break;
+        default:
+            Console.WriteLine("");
+            break;
+    }
+    if (i == 7)
+        lineaNova = $"{nom};{cognom1};{cognom2};{dni};{telefon};{data};{correu};";
+    else
+        lineaNova = $"{nom};{cognom1};{dni};{telefon};{data};{correu};";
+}
+static string CorregirPuntIComaFinal(string linea)
+{
+    linea = linea.Substring(0, linea.Length - 1);
+}
+static string AgafarDada(ref string linea)
+{
+    string dada = linea.Substring(0, linea.IndexOf(';'));
+    linea = linea.Substring(linea.IndexOf(';') + 1);
+    return dada;
+}
+static int ArreglarPosicio(ref int posicio, int i)
+{
+    if (i == 6 && posicio >= 3)
+        i++;
+}
+static void ModificarAgenda(string linea, string lineaNova)
+{
+    string rutaArxiu = "agenda.txt";
+    string rutaArxiuTemporal = "agenda_temp.txt";
 }
