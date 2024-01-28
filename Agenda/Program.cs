@@ -36,7 +36,7 @@ namespace Agenda_ACastillo
                         case 1:
                             BorrarConsola();
                             Capcalera1();
-                            //Afegir el codi a partir d'aqui, no borrar retorn
+                            MostrarOrdenats();
                             RetornCincSegons();
                             BorrarConsola();
                             break;
@@ -82,12 +82,14 @@ namespace Agenda_ACastillo
                                 }
                             }
                             linea = TrobarUsuari(usuari);
+                            BorrarConsola();
                             string lineaNova = ModificarUsuaris(linea);
                             UsuariModificat(linea, lineaNova);
                             while (respostaS != 'N')
                             {
                                 Console.WriteLine("Vols tornar a modificar un altre dada?: (S/N)");
                                 respostaS = Convert.ToChar(Console.ReadLine());
+                                BorrarConsola();
                                 lineaNova = ModificarUsuaris(linea);
                             }
                             RetornCincSegons();
@@ -115,6 +117,13 @@ namespace Agenda_ACastillo
                             RetornCincSegons();
                             BorrarConsola();
                             break;
+                        case 6:
+                            BorrarConsola();
+                            Capcalera6();
+                            OrdenarFitxer();
+                            RetornCincSegons();
+                            BorrarConsola();
+                            break;
                         default:
                             Console.WriteLine("");
                             break;
@@ -133,7 +142,7 @@ namespace Agenda_ACastillo
         {
             int opcioN = 0;
             bool validacio = false;
-            if ("4321".Contains(opcioS))
+            if ("654321".Contains(opcioS))
             {
                 opcioN = Convert.ToInt32(opcioS);
                 validacio = true;
@@ -172,7 +181,7 @@ namespace Agenda_ACastillo
             }
             return;
         }
-        static void BorrarConsola() // Aquest borrara la consola jo vulgui tornant d'aquesta manera al principi
+        static void BorrarConsola() 
         {
             Console.Clear();
             return;
@@ -244,6 +253,14 @@ namespace Agenda_ACastillo
             Console.WriteLine("\r");
             return;
         }
+        static void Capcalera6()
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("                    ORDENAR FITXER                                ");
+            Console.WriteLine("\r");
+            Console.WriteLine("\r");
+            return;
+        }
         static void ConsolaFons()
         {
             Console.WindowHeight = 30;
@@ -252,7 +269,6 @@ namespace Agenda_ACastillo
         }
         static void OrdenarFitxer()
         {
-            //Per a poder provar com funciona, executes el programa i selecciones el 4, despres obre el agendatmp.txt per veure el fitxer ordenat, pero mira tmb el agenda.
             StreamReader SR = new StreamReader("agenda.txt");
             StreamWriter SW = new StreamWriter("agendatmp.txt");
             string frase = "", frase2 = "", fraseMenor = "", fraseSegonMenor = "", nom = "", nom2 = "", nomAnterior = "", menor = "", segonMenor = "";
@@ -284,10 +300,11 @@ namespace Agenda_ACastillo
             }
             SR.Close();
             SW.Close();
+            File.Delete("agenda.txt");
+            File.Move("agendatmp.txt", "agenda.txt");
         }
         static void MostrarOrdenats()
         {
-            //Per a poder provar com funciona, executes el programa i selecciones el 4, despres obre el agendatmp.txt per veure el fitxer ordenat, pero mira tmb el agenda.
             StreamReader SR = new StreamReader("agenda.txt");
             string frase = "", frase2 = "", fraseMenor = "", fraseSegonMenor = "", nom = "", nom2 = "", nomAnterior = "", menor = "", segonMenor = "";
             while (!SR.EndOfStream)
@@ -484,8 +501,8 @@ namespace Agenda_ACastillo
             agendaR.Close();
             return aux;
         }
-        static string ModificarUsuaris(string usuari)
-        {
+        static string ModificarUsuaris(string usuari) //En aquest metode s'agafa la linea, es tallen totes les dades i al final la modificació del usuari
+        {                                             //canvia el contingut de la variable tallada. Al final es forma tota la linea.
             string linea = TrobarUsuari(usuari);
             string aux = linea, lineaNova = "";
             int i = 0, posicioDada = 0;
@@ -619,13 +636,13 @@ namespace Agenda_ACastillo
             linea = linea.Substring(linea.IndexOf(';') + 1);
             return dada;
         }
-        static int ArreglarPosicio(ref int posicio, int i)
+        static int ArreglarPosicio(ref int posicio, int i) //Aquest metode es per a que si no hi han dos cognoms el switch funcioni correctament al metode de modificar.
         {
             if (i == 6 && posicio >= 3)
                 posicio++;
             return posicio;
         }
-        static void UsuariModificat(string linea, string lineaNova)
+        static void UsuariModificat(string linea, string lineaNova) //Metode per escriure la nova linea en el fitxer agenda.
         {
             StreamReader sr = new StreamReader("agenda.txt");
             StreamWriter sw = new StreamWriter("agendatmp.txt");
@@ -649,13 +666,13 @@ namespace Agenda_ACastillo
             File.Delete("agenda.txt");
             File.Move("agendatmp.txt", "agenda.txt");
         }
-        static string UsuariNoTrobat()
-        {
+        static string UsuariNoTrobat() //Metode per en cas que no trobem al usuari fer un bucle, anem preguntant si volem cercar un altre o parar-ho, en tot cas
+        {                              //retornarem el nom d'usuari per continuar amb el procediment.
             string usuari = "";
             bool usuaritrobat = false;
             Console.WriteLine("L'usuari no s'ha trobat, vols buscar un altre? (S/N)");
             char resposta = Convert.ToChar(Console.ReadLine());
-            while (resposta == 'S' && !usuaritrobat)
+            while (resposta == 'S' && !usuaritrobat) //Mentres la resposta sigui afirmativa i no s'hagui trobat l'usuari es farà el bucle.
             {
                 Console.Write("Indica el nom d'usuari: ");
                 usuari = Convert.ToString(Console.ReadLine());
@@ -669,13 +686,14 @@ namespace Agenda_ACastillo
                 }
                 else
                 {
+                    usuari = "";
                     Console.Write("L'usuari no s'ha trobat, vols buscar un altre? (S/N)");
                     resposta = Convert.ToChar(Console.ReadLine());
                 }
             }
             return usuari;
         }
-        static void UsuariEliminar(string linea) //Metode per eliminar una linea en concret.
+        static void UsuariEliminar(string linea) //Metode per eliminar una linea en concret. Es declaren dos fitxers, un temporal que el substituirem pel original.
         {
             StreamReader sr = new StreamReader("agenda.txt");
             StreamWriter sw = new StreamWriter("agendatmp.txt");
@@ -691,8 +709,8 @@ namespace Agenda_ACastillo
             }
             sr.Close();
             sw.Close();
-            File.Delete("agenda.txt");
-            File.Move("agendatmp.txt", "agenda.txt");
+            File.Delete("agenda.txt"); //Elimina el fitxer agenda
+            File.Move("agendatmp.txt", "agenda.txt"); //Canvia el nom del fitxer a "agenda.txt".
         }
         static void DividirLineaAgradable(string linea)
         {
