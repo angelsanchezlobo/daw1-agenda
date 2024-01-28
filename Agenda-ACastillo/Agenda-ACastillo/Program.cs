@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
 namespace Agenda_ACastillo
@@ -55,6 +56,7 @@ namespace Agenda_ACastillo
                         case 4:
                             Capcalera4();
                             //Afegir el codi a partir d'aqui, no borrar retorn
+                            OrdenarFitxer();
                             retorn();
                             BorrarConsola();
                             break;
@@ -171,7 +173,41 @@ namespace Agenda_ACastillo
             Console.WindowHeight = 30;
             Console.WindowWidth = 100;
             Console.BackgroundColor = ConsoleColor.DarkRed;
+        }
+        static void OrdenarFitxer()
+        {
+            //Per a poder provar com funciona, executes el programa i selecciones el 4, despres obre el agendatmp.txt per veure el fitxer ordenat, pero mira tmb el agenda.
+            StreamReader SR = new StreamReader("agenda.txt");
+            StreamWriter SW = new StreamWriter("agendatmp.txt");
+            string frase = "", frase2 = "", fraseMenor = "", fraseSegonMenor = "", nom = "", nom2 = "", nomAnterior = "", menor = "", segonMenor = "";
+            while (!SR.EndOfStream)
+            {
+                frase = SR.ReadLine();
+                nom = frase.Substring(0, frase.IndexOf(';'));
 
+                StreamReader SR2 = new StreamReader("agenda.txt");
+
+                menor = "zzzz";
+
+                frase2 = SR2.ReadLine();
+                nom2 = frase2.Substring(0, frase2.IndexOf(';'));
+                while (!SR2.EndOfStream)
+                {
+                    if (nom2.CompareTo(menor) < 0 && nom2.CompareTo(segonMenor) > 0)
+                    {
+                        fraseMenor = frase2;
+                        menor = nom2;
+                    }
+                    frase2 = SR2.ReadLine();
+                    nom2 = frase2.Substring(0, frase2.IndexOf(';'));
+                }
+                SR2.Close();
+                segonMenor = menor;
+                fraseSegonMenor = fraseMenor;
+                SW.WriteLine(fraseSegonMenor);
+            }
+            SR.Close();
+            SW.Close();
         }
     }
 }
