@@ -1,4 +1,6 @@
-﻿Console.Write("Que vols fer: ");
+﻿using System.Diagnostics;
+
+Console.Write("Que vols fer: ");
 int aux = Convert.ToInt32(Console.ReadLine());
 switch (aux)
 {
@@ -23,9 +25,9 @@ switch (aux)
         break;
     case 3:
         Console.WriteLine("Indica el usuari que vols modificar: ");
-        string usuari = Convert.ToString(Console.ReadLine());
+        usuari = Convert.ToString(Console.ReadLine());
         usuari = CorregirNoms(usuari);
-        bool trobat = false;
+        trobat = false;
         if (TrobarUsuari(usuari) == "")
         {
             while(!trobat)
@@ -33,6 +35,24 @@ switch (aux)
                 trobat = UsuariNoTrobat();
             }
         }
+        string linea = TrobarUsuari(usuari);
+        string lineaNova = ModificarUsuaris(linea);
+        UsuariModificat(linea, lineaNova);
+        break;
+    case 4:
+        Console.WriteLine("Indica el usuari que vols esborrar: ");
+        usuari = Convert.ToString(Console.ReadLine());
+        usuari = CorregirNoms(usuari);
+        trobat = false;
+        if (TrobarUsuari(usuari) == "")
+        {
+            while (!trobat)
+            {
+                trobat = UsuariNoTrobat();
+            }
+        }
+        linea = TrobarUsuari(usuari);
+        UsuariEliminar(linea);
         break;
     default:
         Console.WriteLine("hola");
@@ -97,7 +117,8 @@ static void RecollidaDades(string dades) //Metode per recollir les dades.
     Console.Write("Indica el teu correu electronic: ");
     correu = Convert.ToString(Console.ReadLine());
     data += correu;
-    dades = DadesAddCSV(ref dades); //Cridem al metode per posar els ";" pertinents.
+    DadesAddCSV(ref dades); //Cridem al metode per posar els ";" pertinents.
+    dades = CorregirPuntIComaFinal(dades); //Treurem el ";" final.
     AgendaWriter(dades); //Cridem al metode per esciure en el fitxer agenda.
 }
 static string DadesAddCSV(ref string dades) //Me pone un ; doble al final, puede que haya un espacio final
@@ -140,9 +161,9 @@ static bool ValidacioDNI(string dni) //Metode per verificar un DNI mitjançant o
         if (!digits.Contains(numerosString[i]))
             validacio = false;
     }
-    int numeros = int.Parse(numerosString); //
-    char lletraCalcul = LletraControl(numeros);
-    if (lletraCalcul != char.ToUpper(lletra[0]))
+    int numeros = int.Parse(numerosString); //Pasem els numeros en String --> Int
+    char lletraCalcul = LletraControl(numeros); //Enviem els numeros al metode per calcular la lletra de control.
+    if (lletraCalcul != char.ToUpper(lletra[0])) //Mirem si la lletra de control es diferent.
         validacio = false;
     return validacio;
 }
@@ -152,7 +173,7 @@ static char LletraControl(int numero) //Aquest metode fa la operacio per calcula
     int i = numero % caracters.Length;
     return caracters[i];
 }
-static bool VerificarNumeros(string telefon)
+static bool VerificarNumeros(string telefon) //En aquest metode comrpovem si tots els caracters del telefon son numeros.
 {
     bool validacio = true;
     string digits = "0123456789";
@@ -164,17 +185,17 @@ static bool VerificarNumeros(string telefon)
     }
     return validacio;
 }
-static bool VerificacionData(string data)
+static bool VerificacionData(string data) //Aquest es el metode que falta per fer de la data de naixement.
 {
     Console.Write("hola");
     return true;
 }
-static void AgendaWriter(string linea)
+static void AgendaWriter(string linea) //Metode per escirure la linea en el fitxer agenda.
 {
     StreamWriter agendaW;
-    if (File.Exists("agenda.txt"))
+    if (File.Exists("agenda.txt")) //Fent aquest if comprovem que el fitxer existeix per no sobreescriure el fitxer i esborrar les que teniem.
     {
-        agendaW = new StreamWriter("agenda.txt", true);
+        agendaW = new StreamWriter("agenda.txt", true); //El "true" per el que he cercat es per esciure la linea en el fitxer sense fer un altre fitxer.
     }
     else
     {
@@ -183,12 +204,12 @@ static void AgendaWriter(string linea)
     agendaW.WriteLine(linea);
     agendaW.Close();
 }
-static string TrobarUsuari(string usuari)
+static string TrobarUsuari(string usuari) //En aquest metode agafarem la linea del usuari.
 {
     StreamReader agendaR = new StreamReader("agenda.txt");
     bool trobat = false;
     string linea = agendaR.ReadLine(), aux = "", nom = "";
-    while (!trobat && !agendaR.EndOfStream)
+    while (!trobat && !agendaR.EndOfStream) //Bucle per llegir linea per linea on si trovem la linea modificarem un bool --> true per parar el bucle o fins llegir tot el fitxer.
     {
         linea = agendaR.ReadLine();
         aux = linea;
@@ -197,11 +218,11 @@ static string TrobarUsuari(string usuari)
             trobat = true;
     }
     if (!trobat)
-        aux = "";
+        aux = ""; //Si trobat es false modificarem aquesta linea per donar a entendre que no s'ha trobat i fer-ho servir en un altre if per donar a entendre que es un false.
     agendaR.Close();
     return aux;
 }
-static void BorrarConsola()
+static void BorrarConsola() //Metode per esborrar la consola.
 {
     Console.Clear();
     return;
@@ -328,10 +349,12 @@ static string ModificarUsuaris(string usuari)
         lineaNova = $"{nom};{cognom1};{cognom2};{dni};{telefon};{data};{correu};";
     else
         lineaNova = $"{nom};{cognom1};{dni};{telefon};{data};{correu};";
+    return lineaNova;
 }
 static string CorregirPuntIComaFinal(string linea)
 {
     linea = linea.Substring(0, linea.Length - 1);
+    return linea; 
 }
 static string AgafarDada(ref string linea)
 {
@@ -342,7 +365,8 @@ static string AgafarDada(ref string linea)
 static int ArreglarPosicio(ref int posicio, int i)
 {
     if (i == 6 && posicio >= 3)
-        i++;
+        posicio++;
+    return posicio;
 }
 static void UsuariModificat(string linea, string lineaNova)
 {
@@ -377,7 +401,7 @@ static bool UsuariNoTrobat()
     while (resposta == 'S' && !usuaritrobat)
     {
         Console.Write("Indica el nom d'usuari: ");
-        string usuari = Convert.ToString(Console.ReadLine());
+        usuari = Convert.ToString(Console.ReadLine());
         usuari = CorregirNoms(usuari);
         usuari = TrobarUsuari(usuari);
         if (usuari != "")
