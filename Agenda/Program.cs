@@ -37,6 +37,7 @@ namespace Agenda_ACastillo
                             BorrarConsola();
                             Capcalera1();
                             MostrarOrdenats();
+                            EnsenyarFitxer();
                             RetornCincSegons();
                             BorrarConsola();
                             break;
@@ -95,14 +96,16 @@ namespace Agenda_ACastillo
                             RetornCincSegons();
                             BorrarConsola();
                             break;
+                        //Ensenyar usuari
                         case 5:
                             BorrarConsola();
                             Capcalera5();
                             Console.Write("Indica el nom d'usuari: ");
                             usuari = Convert.ToString(Console.ReadLine());
                             usuari = CorregirNoms(usuari);
-                            trobat = false;
-                            if (TrobarUsuari(usuari) == "")
+                            usuari = TrobarUsuari(usuari);
+                            Console.WriteLine(usuari);
+                            if (usuari == "")
                             {
                                 while (TrobarUsuari(usuari) == "")
                                 {
@@ -111,8 +114,9 @@ namespace Agenda_ACastillo
                             }
                             else
                             {
-                                linea = TrobarUsuari(usuari);
-                                DividirLineaAgradable(linea);
+                                BorrarConsola();
+                                Capcalera5();
+                                DividirLineaAgradable(usuari);
                             }
                             RetornCincSegons();
                             BorrarConsola();
@@ -146,7 +150,7 @@ namespace Agenda_ACastillo
             {
                 opcioN = Convert.ToInt32(opcioS);
                 validacio = true;
-                if (opcioN > 4 || opcioN < 1)
+                if (opcioN > 6 || opcioN < 1)
                 {
                     validacio = false;
                 }
@@ -267,6 +271,13 @@ namespace Agenda_ACastillo
             Console.WindowWidth = 100;
             Console.BackgroundColor = ConsoleColor.DarkRed;
         }
+        static void EnsenyarFitxer()
+        {
+            StreamReader SR = new StreamReader("agenda.txt");
+            while(!SR.EndOfStream && SR.ReadLine != null)
+                Console.WriteLine(SR.ReadLine());
+            SR.Close();
+        }
         static void OrdenarFitxer()
         {
             StreamReader SR = new StreamReader("agenda.txt");
@@ -331,7 +342,7 @@ namespace Agenda_ACastillo
                 SR2.Close();
                 segonMenor = menor;
                 fraseSegonMenor = fraseMenor;
-                Console.WriteLine(fraseSegonMenor);//Hauriem de crear un metode per dividir el nom i el telefon i mostrarlo de una forma adecuada.
+                Console.WriteLine(SR.ReadLine());//Hauriem de crear un metode per dividir el nom i el telefon i mostrarlo de una forma adecuada.
             }
             SR.Close();
         }
@@ -487,7 +498,7 @@ namespace Agenda_ACastillo
         {
             StreamReader agendaR = new StreamReader("agenda.txt");
             bool trobat = false;
-            string linea = agendaR.ReadLine(), aux = "", nom = "";
+            string linea, aux = "", nom = "";
             while (!trobat && !agendaR.EndOfStream) //Bucle per llegir linea per linea on si trovem la linea modificarem un bool --> true per parar el bucle o fins llegir tot el fitxer.
             {
                 linea = agendaR.ReadLine();
@@ -495,6 +506,7 @@ namespace Agenda_ACastillo
                 nom = linea.Substring(0, linea.IndexOf(';'));
                 if (usuari == nom)
                     trobat = true;
+                nom = "";
             }
             if (!trobat)
                 aux = ""; //Si trobat es false modificarem aquesta linea per donar a entendre que no s'ha trobat i fer-ho servir en un altre if per donar a entendre que es un false.
@@ -714,11 +726,11 @@ namespace Agenda_ACastillo
         }
         static void DividirLineaAgradable(string linea)
         {
-            string nom = "", cognom1 = "", cognom2 = "", dni = "", telefon = "", data = "", correu = "";
+            string nom = "", cognom1 = "", cognom2 = "", dni = "", telefon = "", data = "", correu = "", aux = linea;
             int i = 0;
-            while (linea.IndexOf(';') != -1)
+            while (aux.IndexOf(';') != -1)
             {
-                linea = linea.Substring(linea.IndexOf(";") + 1);
+                aux = aux.Substring(aux.IndexOf(";") + 1);
                 i++;
             }
             nom = linea.Substring(0, linea.IndexOf(';'));
@@ -737,9 +749,8 @@ namespace Agenda_ACastillo
             data = linea.Substring(0, linea.IndexOf(';'));
             linea = linea.Substring(linea.IndexOf(";") + 1);
             correu = linea.Substring(0, linea.IndexOf(';'));
-            linea = linea.Substring(linea.IndexOf(";") + 1);
-            Console.WriteLine($"Nom: {nom}, Cognom: {cognom1} {cognom2}, DNI: {dni} \n " +
-                              $"Telefon: {telefon}, Data Naixement: {data}, Correu Electronic: {correu}");
+            Console.WriteLine($"Nom: {nom}, Cognom: {cognom1} {cognom2}, DNI: {dni} \n" +
+                              $"Telefon: {telefon}, Data Naixement: {data}, Correu Electronic: {correu} \n");
         }
 
     }

@@ -30,7 +30,7 @@ switch (aux)
         trobat = false;
         if (TrobarUsuari(usuari) == "")
         {
-            while(!trobat)
+            while (!trobat)
             {
                 trobat = UsuariNoTrobat();
             }
@@ -354,7 +354,7 @@ static string ModificarUsuaris(string usuari)
 static string CorregirPuntIComaFinal(string linea)
 {
     linea = linea.Substring(0, linea.Length - 1);
-    return linea; 
+    return linea;
 }
 static string AgafarDada(ref string linea)
 {
@@ -434,4 +434,33 @@ static void UsuariEliminar(string linea) //Metode per eliminar una linea en conc
     sw.Close();
     File.Delete("agenda.txt");
     File.Move("agendatmp.txt", "agenda.txt");
+}
+static void DividirLineaAgradable(string linea)
+{
+    string nom = "", cognom1 = "", cognom2 = "", dni = "", telefon = "", data = "", correu = "";
+    int i = 0;
+    while (linea.IndexOf(';') != -1)
+    {
+        linea = linea.Substring(linea.IndexOf(";") + 1);
+        i++;
+    }
+    nom = linea.Substring(0, linea.IndexOf(';'));
+    linea = linea.Substring(linea.IndexOf(";") + 1);
+    cognom1 = linea.Substring(0, linea.IndexOf(';'));
+    linea = linea.Substring(linea.IndexOf(";") + 1);
+    if (i == 7)
+    {
+        cognom2 = linea.Substring(0, linea.IndexOf(';'));
+        linea = linea.Substring(linea.IndexOf(";") + 1);
+    }
+    dni = linea.Substring(0, linea.IndexOf(';'));
+    linea = linea.Substring(linea.IndexOf(";") + 1);
+    telefon = linea.Substring(0, linea.IndexOf(';'));
+    linea = linea.Substring(linea.IndexOf(";") + 1);
+    data = linea.Substring(0, linea.IndexOf(';'));
+    linea = linea.Substring(linea.IndexOf(";") + 1);
+    correu = linea.Substring(0, linea.IndexOf(';'));
+    linea = linea.Substring(linea.IndexOf(";") + 1);
+    Console.WriteLine($"Nom: {nom}, Cognom: {cognom1} {cognom2}, DNI: {dni} \n " +
+                      $"Telefon: {telefon}, Data Naixement: {data}, Correu Electronic: {correu}");
 }
