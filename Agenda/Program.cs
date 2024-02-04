@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Diagnostics;
 
 namespace Agenda_ACastillo
@@ -400,7 +401,14 @@ namespace Agenda_ACastillo
             BorrarConsola();
             Console.Write("Indica el teu data de naixement: "); //!He de crear el metode per verificar la data de naixement! <--
             data = Convert.ToString(Console.ReadLine());
-            dades += data + " ";
+            while (!VerificacioData(data)) //Cridem al metode per verificar la data de naixement.
+            {
+                Console.Write("Data erronia, introdueix un data valida: ");
+                data = Convert.ToString(Console.ReadLine());
+            }
+            DateTime dataNova = DateTime.Parse(data);
+            int edat = CalcularEdat(dataNova);
+            dades += edat + " ";
             BorrarConsola();
             Console.Write("Indica el teu correu electronic: ");
             correu = Convert.ToString(Console.ReadLine());
@@ -411,6 +419,7 @@ namespace Agenda_ACastillo
                               $"Telefon: {telefon}, Data Naixement: {data}, Correu Electronic: {correu}");
             AgendaWriter(dades); //Cridem al metode per esciure en el fitxer agenda.
         }
+
         static string DadesAddCSV(ref string dades) //Me pone un ; doble al final, puede que haya un espacio final
         {
             string caracter = ";"; //Declarem el caracter que posarem cada vegada que hi hagi un espai.
@@ -475,10 +484,56 @@ namespace Agenda_ACastillo
             }
             return validacio;
         }
-        static bool VerificacionData(string data) //Aquest es el metode que falta per fer de la data de naixement.
+        static bool VerificacioData(string data) //Aquest es el metode que falta per fer de la data de naixement.
         {
-            Console.Write("hola");
-            return true;
+            bool esValida = true;
+            DateTime dataNaixement;
+            int i = 0;
+            while(esValida && i <= 5)
+            {
+                if (!DateTime.TryParse(data, out dataNaixement)) //Si no es pot convertir al principi, es donà un false.
+                {
+                    esValida = false;
+                }
+                i++;
+                DateTime dataActual = DateTime.Now;
+                if (esValida && dataNaixement > dataActual) //Verifiquem si la data de naixement és anterior a la data actual
+                {
+                    esValida = false;
+                }
+                i++;
+                if (esValida && (dataNaixement.Day < 1 || dataNaixement.Day > DateTime.DaysInMonth(dataNaixement.Year, dataNaixement.Month))) //Verifiquem si el dia és vàlid
+
+                {
+                    esValida = false;
+                }
+                i++;
+                if (esValida && (dataNaixement.Year < 1900 || dataNaixement.Year > DateTime.Now.Year)) //Verifiquem si l'any és vàlid
+                {
+                    esValida = false;
+                }
+                i++;
+                if (esValida && dataNaixement.Month == 2 && !AnyTraspas(dataNaixement.Year) && dataNaixement.Day > 28) //Verifiquem si l'any és un any de trapas
+                {
+                    esValida = false;
+                }
+                i++;
+            }
+            return esValida;
+        }
+        static bool AnyTraspas(int any) //Mirem si el any es un any de traspas, retornem un true o un false.
+        {
+            return (any % 4 == 0 && any % 100 != 0) || (any % 400 == 0);
+        }
+        static int CalcularEdat(DateTime dataNaixement)
+        {
+            DateTime dataActual = DateTime.Today;
+            int edat = dataActual.Year - dataNaixement.Year;
+            if (dataActual.Month < dataNaixement.Month || (dataActual.Month == dataNaixement.Month && dataActual.Day < dataNaixement.Day)) //Restem un any si la data actual és anterior al aniversari d'aquest any
+            {
+                edat--;
+            }
+            return edat;
         }
         static void AgendaWriter(string linea) //Metode per escirure la linea en el fitxer agenda.
         {
@@ -517,7 +572,7 @@ namespace Agenda_ACastillo
         {                                             //canvia el contingut de la variable tallada. Al final es forma tota la linea.
             string linea = TrobarUsuari(usuari);
             string aux = linea, lineaNova = "";
-            int i = 0, posicioDada = 0;
+            int i = 0, posicioDada = 0, edat = 0;
             string nom = "", cognom1 = "", cognom2 = "", dni = "", telefon = "", data = "", correu = "";
             Console.WriteLine(linea);
             while (aux.IndexOf(';') != -1)
@@ -622,6 +677,13 @@ namespace Agenda_ACastillo
                 case 6:
                     Console.WriteLine("Escriu una nova data de naixement: ");
                     data = Convert.ToString(Console.ReadLine());
+                    while (!VerificacioData(data)) //Cridem al metode per verificar la data de naixement.
+                    {
+                        Console.Write("Data erronia, introdueix un data valida: ");
+                        data = Convert.ToString(Console.ReadLine());
+                    }
+                    DateTime dataNova = DateTime.Parse(data);
+                    edat = CalcularEdat(dataNova);
                     break;
                 case 7:
                     Console.WriteLine("Escriu un nou correu electronic: ");
@@ -632,9 +694,9 @@ namespace Agenda_ACastillo
                     break;
             }
             if (i == 7)
-                lineaNova = $"{nom};{cognom1};{cognom2};{dni};{telefon};{data};{correu};";
+                lineaNova = $"{nom};{cognom1};{cognom2};{dni};{telefon};{edat};{correu};";
             else
-                lineaNova = $"{nom};{cognom1};{dni};{telefon};{data};{correu};";
+                lineaNova = $"{nom};{cognom1};{dni};{telefon};{edat};{correu};";
             return lineaNova;
         }
         static string CorregirPuntIComaFinal(string linea)
@@ -726,7 +788,7 @@ namespace Agenda_ACastillo
         }
         static void DividirLineaAgradable(string linea)
         {
-            string nom = "", cognom1 = "", cognom2 = "", dni = "", telefon = "", data = "", correu = "", aux = linea;
+            string nom = "", cognom1 = "", cognom2 = "", dni = "", telefon = "", edat = "", correu = "", aux = linea;
             int i = 0;
             while (aux.IndexOf(';') != -1)
             {
@@ -746,11 +808,11 @@ namespace Agenda_ACastillo
             linea = linea.Substring(linea.IndexOf(";") + 1);
             telefon = linea.Substring(0, linea.IndexOf(';'));
             linea = linea.Substring(linea.IndexOf(";") + 1);
-            data = linea.Substring(0, linea.IndexOf(';'));
+            edat = linea.Substring(0, linea.IndexOf(';'));
             linea = linea.Substring(linea.IndexOf(";") + 1);
             correu = linea.Substring(0, linea.IndexOf(';'));
             Console.WriteLine($"Nom: {nom}, Cognom: {cognom1} {cognom2}, DNI: {dni} \n" +
-                              $"Telefon: {telefon}, Data Naixement: {data}, Correu Electronic: {correu} \n");
+                              $"Telefon: {telefon}, Data Naixement: {edat}, Correu Electronic: {correu} \n");
         }
 
     }
